@@ -1,0 +1,408 @@
+{
+  "name": "3. The E-commerce Order Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-order",
+        "options": {}
+      },
+      "id": "66ca52a2-450c-4d56-b699-e1576df559b2",
+      "name": "Place New Order",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        352
+      ],
+      "webhookDescription": "Receives new order data",
+      "webhookId": "b4af91b3-341f-4c70-9c9d-15b1edb64178"
+    },
+    {
+      "parameters": {
+        "batchSize": 2,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "9bd3e0a9-a6c8-43c0-bfc6-8b2faeb9ac44",
+      "name": "Split Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The E-commerce Order Processor",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "sku",
+              "lookupValue": "={{ $json.body.items[0].sku }}"
+            }
+          ]
+        },
+        "combineFilters": "AND",
+        "options": {}
+      },
+      "id": "31739474-76d0-4b18-8975-ebfc6c81b9d7",
+      "name": "Check Inventory",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -608,
+        352
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIALS_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "734ce6ab-6a82-46e1-883b-5a49395e0e22",
+              "leftValue": "={{ $('Place New Order').item.json.body.items[0].qty }}",
+              "rightValue": "={{ $json.stock }}",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        352
+      ],
+      "id": "88e6180a-aa44-4687-98c2-0c87b9a3a793",
+      "name": "Check Stock Availability"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65cd5d69-2c88-45d6-b309-47c1c8f7ed44",
+              "name": "orderId",
+              "value": "={{$node[\"Split Items\"].json[\"body\"][\"orderId\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "870baf80-ff63-4a3b-9fdd-18626b5b9bee",
+              "name": "customerName",
+              "value": "={{$node[\"Split Items\"].json[\"body\"][\"customerName\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "86cfbd68-8288-41ed-8050-635fbe07fed5",
+              "name": "sku",
+              "value": "={{$node[\"Split Items\"].json[\"body\"][\"items\"][0][\"sku\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "bbb0213b-4311-4fc9-b43c-79aa4739698f",
+              "name": "qty",
+              "value": "={{$node[\"Split Items\"].json[\"body\"][\"items\"][0][\"qty\"]}}, {{$node[\"Split Items\"].json[\"body\"][\"items\"][1][\"qty\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "52aa0411-4bb9-4d98-8420-bd208a60ba27",
+              "name": "packingList",
+              "value": "={{$node[\"Split Items\"].json[\"body\"][\"items\"][0][\"qty\"]}} x {{$node[\"Split Items\"].json[\"body\"][\"items\"][0][\"name\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        48
+      ],
+      "id": "61f04206-e32a-4a96-b47e-79659518202a",
+      "name": "Prepare Fulfillment Data"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The E-commerce Order Processor",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1815742335,
+          "mode": "list",
+          "cachedResultName": "FulfillmentQueue",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1815742335"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "orderId ": "={{ $json.orderId }}",
+            "customerName ": "={{ $json.customerName }}",
+            "sku ": "={{ $json.sku }}",
+            "packingList": "={{ $json.packingList }}"
+          },
+          "matchingColumns": [
+            "orderId "
+          ],
+          "schema": [
+            {
+              "id": "orderId ",
+              "displayName": "orderId ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerName ",
+              "displayName": "customerName ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sku ",
+              "displayName": "sku ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "packingList",
+              "displayName": "packingList",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        80
+      ],
+      "id": "83dfc57c-7d90-4060-82d6-3c342170f2bf",
+      "name": "Update Fulfillment Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIALS_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96546536-25f8-4203-b4ee-0956fc9e5563",
+              "name": "orderId ",
+              "value": "={{$node[\"Place New Order\"].json[\"body\"][\"orderId\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "6a3dcd8a-af84-40f7-b52f-a9e8de8f1b7a",
+              "name": "customerName ",
+              "value": "={{$node[\"Place New Order\"].json[\"body\"][\"customerName\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "9e071e2a-e86b-4a00-b1d2-4b9d50b3edb9",
+              "name": "items ",
+              "value": "={{$node[\"Place New Order\"].json[\"body\"][\"items\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        416
+      ],
+      "id": "943d7296-36ce-497b-bc19-411b0c54a5a8",
+      "name": "Prepare Email Data"
+    },
+    {
+      "parameters": {
+        "sendTo": "YOUR_EMAIL_ADDRESS",
+        "subject": "=Stock Alert – Order {{ $json['orderId '] }}",
+        "message": "=<p>Dear Inventory Team,</p>\n\n<p>This is an automated alert for a new order <strong>{{ $json['orderId '] }}</strong>.</p>\n\n<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n\t<tr>\n\t\t<th>SKU</th>\n\t\t<th>Item Name</th>\n\t\t<th>Quantity Requested</th>\n\t\t<th>Available Stock</th>\n\t</tr>\n\t<tr>\n\t\t<td>{{ $('Check Stock Availability').item.json.sku }}</td>\n\t\t<td>{{ $('Check Stock Availability').item.json.name }}</td>\n\t\t<td>{{ $('Place New Order').item.json.body.items[0].qty }}</td>\n\t\t<td>{{ $('Check Stock Availability').item.json.stock }}</td>\n\t</tr>\n</table>\n\n<p>Please restock or update inventory to fulfill this order.</p>\n\n<p>Regards,<br>Automated Order System</p>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        576,
+        416
+      ],
+      "id": "d2aee1a7-a454-42ca-9217-8d0bd6b00287",
+      "name": "Send Stock Alert Email",
+      "webhookId": "defa4a96-72ea-4b7b-97fc-b9ff1e14cdcc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIALS_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Problem Statement (Workflow Purpose):\n\nProblem:\nManual order processing takes time and often results in errors. Inventory shortages may not be identified in time, resulting in shipping delays and consumer discontent.\n\nSolution This Workflow Provides:\n\nThis process does it automatically:\n\n- Finds new orders.\n- Divides and handles every product independently.\n- Quickly checks the amount of stock.\n- Updates the fulfillment sheets for the warehouse.\n- Automatically notifies users when supplies are running low.\n\nBenefits\n\n- Reduces the need for manual checks, saving time.\n- Avoids delays caused by stock-outs.\n- Maintains reliable fulfillment records.\n- Increases client happiness through expedited processing.",
+        "height": 544,
+        "width": 720
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1712,
+        -224
+      ],
+      "typeVersion": 1,
+      "id": "6e6ed061-9496-4d26-80a5-b2301143e164",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Place New Order": {
+      "main": [
+        [
+          {
+            "node": "Split Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Items": {
+      "main": [
+        [
+          {
+            "node": "Check Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Inventory": {
+      "main": [
+        [
+          {
+            "node": "Check Stock Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Stock Availability": {
+      "main": [
+        [
+          {
+            "node": "Prepare Fulfillment Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Fulfillment Data": {
+      "main": [
+        [
+          {
+            "node": "Update Fulfillment Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Data": {
+      "main": [
+        [
+          {
+            "node": "Send Stock Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "675bbd37-01ba-44d6-ba2a-37cf28016571",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_INSTANCE_ID"
+  },
+  "id": "7UyOvXMT47t660kI",
+  "tags": []
+}in
