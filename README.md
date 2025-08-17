@@ -23,7 +23,7 @@ It shows how customer orders are received, validated, processed, and updated in 
 
 ## Demo Video  
 
-View the live demo → [Video overview](Docs and Demo Videos/Demo Videos/demovideos.md)
+View the live demo → [Video overview](docs/demovideos.md)
 
 ---
 
