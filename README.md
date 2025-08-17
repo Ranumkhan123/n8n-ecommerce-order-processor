@@ -15,7 +15,7 @@ It shows how customer orders are received, validated, processed, and updated in 
 ---
 
 ##  Repository Contents
-- `workflow/` → Contains the n8n workflow JSON file (`ecommerce-order-processor.json`).
+- `workflow/` → Contains the n8n workflow JSON file (`n8n-ecommerce-order-processor workflow.json`).
 - `demo-video/` → Contains a short demo video walkthrough.
 - `docs/screenshots/` → Screenshots for visual understanding.
 
