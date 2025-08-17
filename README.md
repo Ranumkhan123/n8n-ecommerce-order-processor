@@ -25,7 +25,7 @@ It shows how customer orders are received, validated, processed, and updated in 
 
 Watch the workflow in action:  
 
-[![Watch the demo](https://img.youtube.com/vi/j059XvgT1jg?si=LLmyS21SUh6_tCxD/0.jpg)](https://youtu.be/j059XvgT1jg?si=LLmyS21SUh6_tCxD)
+[![Watch the demo](https://img.youtube.com/vi/CTMWUdJ3T04BXO0B/0.jpg)](https://youtu.be/j059XvgT1jg?si=CTMWUdJ3T04BXO0B)
 
 ---
 
