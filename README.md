@@ -21,9 +21,20 @@ It shows how customer orders are received, validated, processed, and updated in 
 
 ---
 
-##  Demo Video
-A short walkthrough of the workflow execution:  
-[![Watch the demo](https://img.youtube.com/vi/j059XvgT1jg/0.jpg)](https://youtu.be/j059XvgT1jg)
+## Demo Video
+
+Watch the workflow in action:
+
+[![Watch the demo](https://img.youtube.com/vi/J059XvgT1jg/0.jpg)](https://youtu.be/J059XvgT1jg)
+
+
+---
+
+## Workflow Diagram
+
+Here’s how the workflow is structured in n8n:
+
+![Workflow Overview](docs/screenshots/workflow-overview.png)
 
 ---
 
